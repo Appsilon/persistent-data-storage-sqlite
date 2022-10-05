@@ -50,6 +50,7 @@ server <- function(input, output, session) {
     # Create output table ----
     output$table <- DT::renderDT({
         shiny::validate(need(input$n_rows > 0, "Select at least 1 row."))
+        auto_save(get_data_list(input))
         mtcars %>%
             dplyr::select(input$show_vars) %>%
             dplyr::slice_head(n = input$n_rows)
@@ -108,7 +109,6 @@ server <- function(input, output, session) {
 
     # Register callback to save last state and disconnect from DB upon end of R process ----
     onStop(function() {
-        auto_save(get_data_list(input))
         RSQLite::dbDisconnect(DB_CONN)
         message("Disconnected from local DB")
     }, session = NULL)
